@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e8bab84e6f17146b8ad2eb5cf3a45c4936f9c34a9e9c19fd376937aad08ca02b
+-- hash: 8f1a0dd2d4c21fc278ba0a6cdbaaf15229e2a3bb120dd5e9ed493e7a39f31c26
 
 name:           jmes-path
 version:        0.1.0.0
@@ -27,7 +27,9 @@ source-repository head
 
 library
   exposed-modules:
-      JMESPath
+      Data.JMESPath
+      Data.JMESPath.Core
+      Data.JMESPath.Internal
       Lib
   other-modules:
       Paths_jmes_path

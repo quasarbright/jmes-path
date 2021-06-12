@@ -3,7 +3,7 @@
 import Test.Hspec
 
 import Data.Aeson
-import JMESPath
+import Data.JMESPath
 
 pass :: Expectation
 pass = True `shouldBe` True
