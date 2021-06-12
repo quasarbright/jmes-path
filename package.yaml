@@ -27,6 +27,10 @@ dependencies:
 - extra
 - transformers
 - lens
+- aeson
+- text
+- vector
+- unordered-containers
 
 ghc-options:
 - -w

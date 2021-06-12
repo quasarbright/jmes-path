@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d587d21751eaba9703b5f752dc18eda7096e9fee8a462136f4c73ea880988c51
+-- hash: e8bab84e6f17146b8ad2eb5cf3a45c4936f9c34a9e9c19fd376937aad08ca02b
 
 name:           jmes-path
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      JMESPath
       Lib
   other-modules:
       Paths_jmes_path
@@ -35,13 +36,17 @@ library
   default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
   ghc-options: -w -Wall
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , containers
     , extra
     , lens
     , megaparsec
     , mtl
+    , text
     , transformers
+    , unordered-containers
+    , vector
   default-language: Haskell2010
 
 executable jmes-path-exe
@@ -53,14 +58,18 @@ executable jmes-path-exe
   default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
   ghc-options: -w -Wall -threaded -rtsopts -with-rtsopts=-N -w -Wall
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , containers
     , extra
     , jmes-path
     , lens
     , megaparsec
     , mtl
+    , text
     , transformers
+    , unordered-containers
+    , vector
   default-language: Haskell2010
 
 test-suite jmes-path-test
@@ -75,6 +84,7 @@ test-suite jmes-path-test
   build-depends:
       HUnit
     , QuickCheck
+    , aeson
     , base >=4.7 && <5
     , containers
     , extra
@@ -83,5 +93,8 @@ test-suite jmes-path-test
     , lens
     , megaparsec
     , mtl
+    , text
     , transformers
+    , unordered-containers
+    , vector
   default-language: Haskell2010
