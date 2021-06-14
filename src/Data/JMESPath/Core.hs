@@ -40,7 +40,7 @@ selects (selector : selectors) v =
       go = selects selectors
       goProj :: Array -> Value
       goProj = Vector.toList >>> fmap go >>> filter (/= Null) >>> Vector.fromList >>> Array
-   in case selector of
+  in case selector of
         Prop name -> go $! fromMaybe Null $ v `onObject'` \object -> object Map.!? name
         MultiSelect sss ->
           go $!

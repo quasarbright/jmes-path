@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8f1a0dd2d4c21fc278ba0a6cdbaaf15229e2a3bb120dd5e9ed493e7a39f31c26
+-- hash: df3b86572489b1ba94cc8ac4b2b32e2e517697e2a1b2e32039b0e54158e84c68
 
 name:           jmes-path
 version:        0.1.0.0
@@ -35,7 +35,13 @@ library
       Paths_jmes_path
   hs-source-dirs:
       src
-  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
+  default-extensions:
+      LambdaCase
+      RecordWildCards
+      GeneralizedNewtypeDeriving
+      TupleSections
+      MonadComprehensions
+      MultiWayIf
   ghc-options: -w -Wall
   build-depends:
       aeson
@@ -57,7 +63,13 @@ executable jmes-path-exe
       Paths_jmes_path
   hs-source-dirs:
       app
-  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
+  default-extensions:
+      LambdaCase
+      RecordWildCards
+      GeneralizedNewtypeDeriving
+      TupleSections
+      MonadComprehensions
+      MultiWayIf
   ghc-options: -w -Wall -threaded -rtsopts -with-rtsopts=-N -w -Wall
   build-depends:
       aeson
@@ -81,7 +93,13 @@ test-suite jmes-path-test
       Paths_jmes_path
   hs-source-dirs:
       test
-  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
+  default-extensions:
+      LambdaCase
+      RecordWildCards
+      GeneralizedNewtypeDeriving
+      TupleSections
+      MonadComprehensions
+      MultiWayIf
   ghc-options: -w -Wall -threaded -rtsopts -with-rtsopts=-N -w -Wall
   build-depends:
       HUnit
