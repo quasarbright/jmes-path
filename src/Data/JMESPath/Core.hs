@@ -28,6 +28,7 @@ onArray _ _ = Nothing
 onArray' :: Value -> (Array -> Maybe a) -> Maybe a
 onArray' f v = join (onArray f v)
 
+-- | Helper for flattening items. Injects non-arrays as singletons and leaves arrays untouched
 toArray :: Value -> Array
 toArray (Array vs) = vs
 toArray v = [v]
@@ -66,6 +67,7 @@ selects (selector : selectors) v =
 -- | Evaluate an expression on a JSON value
 infixl 4 `eval`
 
+-- | Evaluate an expression 
 eval :: Value -> Expr -> Value
 eval v = \case
   Selects selectors -> selects selectors v

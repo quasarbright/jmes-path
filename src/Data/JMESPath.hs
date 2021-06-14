@@ -27,7 +27,10 @@ module Data.JMESPath
     index,
     slice,
     arrayWild,
+    listProj,
+    flatten,
     objWild,
+    objProj,
     remap,
     select,
   )
@@ -47,6 +50,7 @@ import Data.JMESPath.Core ( eval )
 -- | Runs the selectors on the value
 infixl 4 .?
 
+-- | Infix alias for `eval`
 (.?) :: IsExpr e => Value -> e -> Value
 (.?) v = eval v . toExpr
 
@@ -119,6 +123,10 @@ flatten = Flatten
 -- | slices an object's values (projects)
 objWild :: Selector
 objWild = ObjectProjection
+
+-- | selects all object values (projects)
+objProj :: Selector
+objProj = ObjectProjection
 
 -- | evaluates exprs on value and maps results to names to create a new object (does not project)
 remap :: IsExpr e => [(Text, e)] -> Selector
