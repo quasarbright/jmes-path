@@ -52,3 +52,29 @@ main = hspec $ do
             Object ("a" .= Number 1 <> "b" .= Number 2) .? multiSelect [prop "a", prop "c", prop "b"] `shouldBe` Array [Number 1, Number 2]
         it "doesn't project" $ do
             Object ("a" .= Array [Number 1] <> "b" .= Array [Number 2]) .? select ?& multiSelect [prop "a", prop "b"] ?! 0 `shouldBe` Array [Number 1]
+    describe "list projection" $ do
+        it "works on arrays" $ do
+            Array [Object ("a" .= Number 1 <> "b" .= Number 3), Object ("a" .= Number 2)] .? select ?& arrayWild ?. "a" `shouldBe` Array [Number 1, Number 2]
+        it "works on some fails" $ do
+            Array [Object ("a" .= Number 1 <> "b" .= Number 3), Object ("d" .= Number 2), Object ("a" .= Number 4)]
+                .? select ?& arrayWild ?. "a"
+                `shouldBe` Array [Number 1, Number 4]
+        it "works on empty" $ do
+            Array [] .? select ?& arrayWild ?. "a" `shouldBe` Array []
+        it "copies lists" $ do
+            Array [Number 1, Number 2] .? select ?& arrayWild `shouldBe` Array [Number 1, Number 2]
+        it "works on non-lists" $ do
+            Null .? select ?& arrayWild `shouldBe` Null
+            Bool True .? select ?& arrayWild `shouldBe` Null
+            Bool False .? select ?& arrayWild `shouldBe` Null
+            Number 0 .? select ?& arrayWild `shouldBe` Null
+            String "a" .? select ?& arrayWild `shouldBe` Null
+            Object ("a" .= Array [Number 0]) .? select ?& arrayWild `shouldBe` Null
+        it "chains" $ do
+            let v = Array [Object ("e" .= Array [Object ("a" .= Number 1), Object ("a" .= Number 2)]), Object ("e" .= Array [Object ("a" .= Number 3)])]
+                v' = Array [Array [Number 1, Number 2], Array [Number 3]]
+            v .? select ?& arrayWild ?. "e" ?& arrayWild ?. "a" `shouldBe` v'
+    describe "pipe law" $ do
+        it "is obeyed" $ do
+            -- TODO property test pipe law: v .? (a |> b) == (v .? a) .? b
+            pass

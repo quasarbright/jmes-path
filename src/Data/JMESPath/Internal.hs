@@ -11,6 +11,8 @@ import Data.Maybe (fromMaybe)
 data Slice = MkSlice (Maybe Int) (Maybe Int) (Maybe Int) deriving (Eq, Ord)
 
 -- TODO finish and test edge cases
+
+-- | Run a Slice on a vector
 runSlice :: Slice -> Vector a -> Vector a
 runSlice (MkSlice start stop _) v = Vector.slice start' len v
   where
@@ -19,39 +21,41 @@ runSlice (MkSlice start stop _) v = Vector.slice start' len v
     len = stop' - start'
     -- step' = fromMaybe 1 step
 
--- TODO arbitrary selectors in multi-select
-
 -- | Represents query selectors. Field accesses, indexing, etc. Also used for projections
 data Selector
-  = -- | .x
+  = -- | x
     Prop Text
-  | -- | .[x,y.z,z[0]]
+  | -- | [x,y.z,z[0]]
     MultiSelect [Expr]
-  | -- | .{firstName: name.first, lastName: name.last}
+  | -- | {firstName: name.first, lastName: name.last}
     Remap (HashMap Text Expr)
   | -- | [0]
     Index Int
-  | -- | [3:5]
+  | -- | [3:8:2]
     Slice Slice
+  | -- | []
+    Flatten
   | -- | .*
-    -- TODO flatten
-    -- TODO function
-    -- TODO filter
     ObjectProjection
   deriving (Eq, Ord)
+  -- TODO function
+  -- TODO filter
 
--- | Represents a full JMESPath expression/query. Use `Monoid` instance or combinators for pipes
+-- | Represents a full JMESPath expression/query. Use `Semigroup` instance or combinators for piping
 data Expr
-  = -- | .x[0].y.z[1]
+  = -- | x[0].y.z[1]
     Selects [Selector]
-  | -- | [*].x | .y   stops projections: v .? (l |> r) == (v .? l) .? r
+  | -- | x[*].y | z   stops projections: v .? (l |> r) == (v .? l) .? r
     Pipe Expr Expr
   deriving (Eq, Ord)
 
+-- | Piping semigroup which favors right-associativity
 instance Semigroup Expr where
+  Selects [] <> e = e
+  e <> Selects [] = e
   Selects ss <> Selects ss' = Selects ss `Pipe` Selects ss'
-  Pipe a b <> c = (a <> b) <> c
-  a <> Pipe b c = (a <> b) <> c
+  Pipe a b <> c = a <> (b <> c)
+  a <> Pipe b c = a <> (b <> c)
 
 instance Monoid Expr where
   mempty = Selects mempty

@@ -108,6 +108,14 @@ slice start stop end = Slice (MkSlice start stop end)
 arrayWild :: Selector
 arrayWild = Slice (MkSlice Nothing Nothing Nothing)
 
+-- | alias for `arrayWild`
+listProj :: Selector
+listProj = arrayWild
+
+-- | like `arrayWild`, but flattens 
+flatten :: Selector
+flatten = Flatten
+
 -- | slices an object's values (projects)
 objWild :: Selector
 objWild = ObjectProjection

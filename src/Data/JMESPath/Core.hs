@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 module Data.JMESPath.Core where
 
 import Data.Aeson ( Array, Object, Value(Null, Array, Object) )
@@ -27,7 +28,9 @@ onArray _ _ = Nothing
 onArray' :: Value -> (Array -> Maybe a) -> Maybe a
 onArray' f v = join (onArray f v)
 
--- TODO strictness a la fold' (just $! ?)
+toArray :: Value -> Array
+toArray (Array vs) = vs
+toArray v = [v]
 
 -- | Run selectors on a value
 selects :: [Selector] -> Value -> Value
@@ -35,27 +38,27 @@ selects [] v = v
 selects (selector : selectors) v =
   let go :: Value -> Value
       go = selects selectors
-
       goProj :: Array -> Value
-      goProj = Vector.toList >>> fmap go >>> Vector.fromList >>> Array
+      goProj = Vector.toList >>> fmap go >>> filter (/= Null) >>> Vector.fromList >>> Array
    in case selector of
-        Prop name -> go $ fromMaybe Null $ v `onObject'` \object -> object Map.!? name
+        Prop name -> go $! fromMaybe Null $ v `onObject'` \object -> object Map.!? name
         MultiSelect sss ->
-          go $
+          go $!
             eval v <$> sss
               & filter (/= Null)
               & Vector.fromList
               & Array
         Remap mapping ->
-          go $
+          go $!
             mapping
               & Map.toList
               & fmap (second (eval v))
               & Map.fromList
               & Object
-        Index i -> go $ fromMaybe Null $ v `onArray'` \vector -> vector Vector.!? i
-        Slice s -> goProj $ fromMaybe mempty $ v `onArray` runSlice s
-        ObjectProjection -> goProj $ fromMaybe mempty $ v `onObject` \object -> foldMap Vector.singleton object
+        Index i -> go $! fromMaybe Null $ v `onArray'` \vector -> vector Vector.!? i
+        Slice s -> fromMaybe Null $ v `onArray` \vector -> goProj $! runSlice s vector
+        Flatten -> fromMaybe Null $ v `onArray` \vector -> goProj $! foldMap toArray vector
+        ObjectProjection -> fromMaybe Null $ v `onObject` \object -> goProj $! foldMap Vector.singleton object
 
 -- Maybe you could make lenses/traversals for these! could use function composition with (.)!!
 -- Selector composition isn't context-free, but Exprs could certainly be a lens/traversal
