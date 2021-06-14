@@ -74,7 +74,66 @@ main = hspec $ do
             let v = Array [Object ("e" .= Array [Object ("a" .= Number 1), Object ("a" .= Number 2)]), Object ("e" .= Array [Object ("a" .= Number 3)])]
                 v' = Array [Array [Number 1, Number 2], Array [Number 3]]
             v .? select ?& arrayWild ?. "e" ?& arrayWild ?. "a" `shouldBe` v'
-    describe "pipe law" $ do
-        it "is obeyed" $ do
-            -- TODO property test pipe law: v .? (a |> b) == (v .? a) .? b
-            pass
+    describe "object projection" $ do
+        it "works on objects" $ do
+            Object ("a" .= Array [Number 1, Number 2] <> "b" .= Array [Number 3, Number 4])
+                .? select ?& objWild ?! 0
+                `shouldBe` Array [Number 1, Number 3]
+        it "works on some fails" $ do
+            Object ("a" .= Array [Number 1] <> "b" .= Number 2 <> "c" .= Array [Number 3])
+                .? select ?& objWild ?! 0
+                `shouldBe` Array [Number 1, Number 3]
+        it "works on all fails" $ do
+            Object ("a" .= Number 0 <> "b" .= Number 1 <> "c" .= Number 2)
+                .? select ?& objWild ?! 0
+                `shouldBe` Array []
+        it "works on empty" $ do
+            Object mempty .? select ?& objWild ?! 0 `shouldBe` Array []
+        it "works on non-objects" $ do
+            Null .? select ?& objWild ?! 0 `shouldBe` Null
+            Bool True .? select ?& objWild ?! 0 `shouldBe` Null
+            Bool False .? select ?& objWild ?! 0 `shouldBe` Null
+            Number 0 .? select ?& objWild ?! 0 `shouldBe` Null
+            String "a" .? select ?& objWild ?! 0 `shouldBe` Null
+            Array [Number 0] .? select ?& objWild ?! 0 `shouldBe` Null
+        it "copies" $ do
+            Object ("a" .= Number 0 <> "b" .= Number 1 <> "c" .= Number 2) .? select ?& objWild `shouldBe` Array [Number 0, Number 1, Number 2]
+        it "chains" $ do
+            let v = Object ("a" .= Array [Object ("b" .= Array [Number 1])] <> "b" .= Array [Object ("c" .= Array [Number 2] <> "d" .= Array [Number 3, Number 4])])
+                v' = Array [Array [Number 1], Array [Number 3, Number 2]] -- the order is hash-based, not based on insertion order
+            v .? select ?& objWild ?! 0 ?& objWild ?! 0 `shouldBe` v'
+    describe "list flatten" $ do
+        it "flattens" $ do
+            -- taken from tutorial
+            let -- [[0,1],2,[3],4,[5,[6,7]]]
+                v = Array [Array [Number 0, Number 1], Number 2, Array [Number 3], Number 4, Array [Number 5, Array [Number 6, Number 7]]]
+                -- [0,1,2,3,4,5,[6,7]]
+                v' = Array [Number 0, Number 1, Number 2, Number 3, Number 4, Number 5, Array [Number 6, Number 7]]
+            v .? select ?& flatten `shouldBe` v'
+        it "projects" $ do
+            let -- [[0, 1],2,[3],4,[5, [6, 7], 8, [9]]
+                v = Array [Array [Number 0, Number 1], Number 2, Array [Number 3], Number 4, Array [Number 5, Array [Number 6, Number 7], Number 8, Array [Number 9]]]
+                v' = Array [Number 6, Number 9]
+            v .? select ?& flatten ?! 0 `shouldBe` v'
+        it "works on non-arrays" $ do
+            Null .? select ?& flatten `shouldBe` Null
+            Bool True .? select ?& flatten `shouldBe` Null
+            Bool False .? select ?& flatten `shouldBe` Null
+            Number 1 .? select ?& flatten `shouldBe` Null
+            String "a" .? select ?& flatten `shouldBe` Null
+            Object ("a" .= Number 1) .? select ?& flatten `shouldBe` Null
+        it "works on empty"  $ do
+            Array [] .? select ?& flatten `shouldBe` Array []
+    describe "pipes" $ do
+        it "stops projections" $ do
+            let v = Array [Object ("a" .= Array [Number 1, Number 2]), Object ("a" .= Array [Number 3, Number 4])]
+                vProj = Array [Number 1, Number 3]
+                vPipe = Array [Number 1, Number 2]
+            v .? select ?& arrayWild ?. "a" ?! 0 `shouldBe` vProj
+            v .? select ?& arrayWild ?. "a" |> select ?! 0 `shouldBe` vPipe
+        it "has identity" $ do
+            pass -- TODO property test id category law
+        it "compose associatively" $ do
+            pass -- TODO property test assoc category law
+        it "just makes a new eval (pipe law)" $ do
+            pass -- TODO property test pipe law: v .? (a |> b) == (v .? a) .? b

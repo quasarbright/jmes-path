@@ -116,7 +116,7 @@ arrayWild = Slice (MkSlice Nothing Nothing Nothing)
 listProj :: Selector
 listProj = arrayWild
 
--- | like `arrayWild`, but flattens 
+-- | like `arrayWild`, but flattens (projects)
 flatten :: Selector
 flatten = Flatten
 
