@@ -1,3 +1,3 @@
-# Changelog for jmes-path
+# Changelog for jmespath
 
 ## Unreleased changes

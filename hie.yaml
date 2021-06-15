@@ -1,13 +1,13 @@
 cradle:
   stack:
     - path: "./src"
-      component: "jmes-path:lib"
+      component: "jmespath:lib"
 
     - path: "./app/Main.hs"
-      component: "jmes-path:exe:jmes-path-exe"
+      component: "jmespath:exe:jmespath-exe"
 
     - path: "./app/Paths_jmes_path.hs"
-      component: "jmes-path:exe:jmes-path-exe"
+      component: "jmespath:exe:jmespath-exe"
 
     - path: "./test"
-      component: "jmes-path:test:jmes-path-test"
+      component: "jmespath:test:jmespath-test"

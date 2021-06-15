@@ -1,6 +1,6 @@
-name:                jmes-path
+name:                jmespath
 version:             0.1.0.0
-github:              "quasarbright/jmes-path"
+github:              "quasarbright/jmespath"
 license:             BSD3
 author:              "mdelmonaco"
 maintainer:          "mdelmonacochs@gmail.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/quasarbright/jmes-path#readme>
+description:         Please see the README on GitHub at <https://github.com/quasarbright/jmespath#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -48,7 +48,7 @@ library:
 
 
 executables:
-  jmes-path-exe:
+  jmespath-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -58,7 +58,7 @@ executables:
     - -w
     - -Wall
     dependencies:
-    - jmes-path
+    - jmespath
     default-extensions:
     - LambdaCase
     - RecordWildCards
@@ -68,7 +68,7 @@ executables:
     - MultiWayIf
 
 tests:
-  jmes-path-test:
+  jmespath-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -78,7 +78,7 @@ tests:
     - -w
     - -Wall
     dependencies:
-    - jmes-path
+    - jmespath
     - hspec
     - QuickCheck
     - HUnit
