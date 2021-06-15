@@ -40,6 +40,12 @@ data Selector
     ObjectProjection
   | -- | `{"foo": 2}`
     Literal Value
+  | -- | a || b
+    Or Expr Expr
+  | -- | a && b
+    And Expr Expr
+  | -- | !a
+    Not Expr
   deriving (Eq, Ord)
   -- TODO function
   -- TODO filter

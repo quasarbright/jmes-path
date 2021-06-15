@@ -33,6 +33,10 @@ module Data.JMESPath
     objProj,
     remap,
     literal,
+    (?||),
+    (?&&),
+    jnot,
+    toBool,
     select,
   )
 where
@@ -139,6 +143,25 @@ remap =
 -- | json literal value
 literal :: Value -> Selector
 literal = Literal
+
+infixr 7 ?||
+infixr 8 ?&& 
+
+-- | If left is truthy, use left. Otherwise, use right
+(?||) :: (IsExpr l, IsExpr r) => l -> r -> Selector
+(?||) l r = toExpr l `Or` toExpr r
+
+-- | If left is falsy, use left. Otherwise, use right
+(?&&) :: (IsExpr l, IsExpr r) => l -> r -> Selector
+(?&&) l r = toExpr l `And` toExpr r
+
+-- | Return the inverse of the truthiness of the expression
+jnot :: IsExpr e => e -> Selector
+jnot = Not . toExpr
+
+-- | Return the truthiness of the expression (equivalent to !!e)
+toBool :: IsExpr e => e -> Selector
+toBool e = Not (toExpr (Not (toExpr e)))
 
 -- | base case for selection list (performs no transformation). Useful for combinator expressions
 select :: [Selector]

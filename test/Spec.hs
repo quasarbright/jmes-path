@@ -156,6 +156,28 @@ main = hspec $ do
             Array [Number 0, Number 1] .? select ?& arrayWild ?& literal v `shouldBe` Array [v, v]
         it "works after a failure" $ do
             Number 1 .? select ?! 0 ?& literal (String "a") `shouldBe` String "a"
+        it "chains with other selectors after it" $ do
+            pass -- TODO
+    describe "truthiness" $ do
+        it "works on singles" $ do
+            Null .? toBool `shouldBe` Bool False
+            Array [] .? toBool `shouldBe` Bool False
+            String "" .? toBool `shouldBe` Bool False
+            Object mempty .? toBool `shouldBe` Bool False
+            Bool False .? toBool `shouldBe` Bool False
+            Bool True .? toBool `shouldBe` Bool True
+            Number 0 .? toBool `shouldBe` Bool True
+            Array [Null] .? toBool `shouldBe` Bool True
+            Object ("" .= Null) .? toBool `shouldBe` Bool True
+        it "is idempotent" $ do
+            pass -- TODO property test v .? toBool ?& toBool == v .? toBool
+    describe "or" $ do
+        it "works on singles" $ do
+            pass -- TODO
+        it "chains" $ do
+            pass -- TODO
+        it "associates" $ do
+            pass -- TODO
     describe "pipes" $ do
         it "stops projections" $ do
             let v = Array [Object ("a" .= Array [Number 1, Number 2]), Object ("a" .= Array [Number 3, Number 4])]
