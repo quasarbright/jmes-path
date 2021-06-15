@@ -60,6 +60,7 @@ selects (selector : selectors) v =
         Slice s -> fromMaybe Null $ v `onArray` \vector -> goProj $! runSlice s vector
         Flatten -> fromMaybe Null $ v `onArray` \vector -> goProj $! foldMap toArray vector
         ObjectProjection -> fromMaybe Null $ v `onObject` \object -> goProj $! foldMap Vector.singleton object
+        Literal v' -> go $! v'
 
 -- Maybe you could make lenses/traversals for these! could use function composition with (.)!!
 -- Selector composition isn't context-free, but Exprs could certainly be a lens/traversal

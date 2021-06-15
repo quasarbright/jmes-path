@@ -124,6 +124,38 @@ main = hspec $ do
             Object ("a" .= Number 1) .? select ?& flatten `shouldBe` Null
         it "works on empty"  $ do
             Array [] .? select ?& flatten `shouldBe` Array []
+    describe "remap" $ do
+        it "works on objects" $ do
+            Object ("a" .= Number 1) .? select ?& remap [("b", prop "a")] `shouldBe` Object ("b" .= Number 1)
+        it "works on arrays" $ do
+            Array [Number 0, String "a", Bool True]
+                .? select ?& remap [("b", index 0), ("a", index 2), ("c", index 1)]
+                `shouldBe` Object ("a" .= Bool True <> "b" .= Number 0 <> "c" .= String "a")
+        it "works with fails" $ do
+            Object ("a" .= Number 1) .? select ?& remap [("b", prop "c"), ("foo", prop "a"), ("c", index 0)] `shouldBe` Object ("foo" .= Number 1 <> "b" .= Null <> "c" .= Null)
+        it "allows a selector to be reused" $ do
+            Object ("a" .= Number 1) .? select ?& remap [("a", prop "a"), ("b", prop "a")] `shouldBe` Object ("a" .= Number 1 <> "b" .= Number 1)
+    describe "literal" $ do
+        it "works on all types" $ do
+            let v = Array [Number 0, Bool True]
+            Null .? select ?& literal v `shouldBe` v
+            Number 0 .? select ?& literal v `shouldBe` v
+            String "a" .? select ?& literal v `shouldBe` v
+            Bool True .? select ?& literal v `shouldBe` v
+            Bool False .? select ?& literal v `shouldBe` v
+            Array [Number 0] .? select ?& literal v `shouldBe` v
+            Array [] .? select ?& literal v `shouldBe` v
+            Object ("a" .= Number 0) .? select ?& literal v `shouldBe` v
+            Object mempty .? select ?& literal v `shouldBe` v
+        it "works after a selector" $ do
+            let v = Array [Number 0, Bool True]
+            Array [Number 0] .? select ?! 0 ?& literal v `shouldBe` v
+            Object ("a" .= Number 0) .? select ?! 0 ?& literal v `shouldBe`v
+        it "works after a projection" $ do
+            let v = Array [Number 0]
+            Array [Number 0, Number 1] .? select ?& arrayWild ?& literal v `shouldBe` Array [v, v]
+        it "works after a failure" $ do
+            Number 1 .? select ?! 0 ?& literal (String "a") `shouldBe` String "a"
     describe "pipes" $ do
         it "stops projections" $ do
             let v = Array [Object ("a" .= Array [Number 1, Number 2]), Object ("a" .= Array [Number 3, Number 4])]

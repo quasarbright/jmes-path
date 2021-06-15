@@ -32,6 +32,7 @@ module Data.JMESPath
     objWild,
     objProj,
     remap,
+    literal,
     select,
   )
 where
@@ -134,6 +135,10 @@ remap =
   fmap (second toExpr)
     >>> Map.fromList
     >>> Remap
+
+-- | json literal value
+literal :: Value -> Selector
+literal = Literal
 
 -- | base case for selection list (performs no transformation). Useful for combinator expressions
 select :: [Selector]

@@ -6,6 +6,7 @@ import qualified Data.Vector as Vector
 import Data.Text (Text)
 import Data.HashMap.Strict (HashMap)
 import Data.Maybe (fromMaybe)
+import Data.Aeson (Value)
 
 -- | Represents a Python-like list slice. Slice start stop step
 data Slice = MkSlice (Maybe Int) (Maybe Int) (Maybe Int) deriving (Eq, Ord)
@@ -37,6 +38,8 @@ data Selector
     Flatten
   | -- | .*
     ObjectProjection
+  | -- | `{"foo": 2}`
+    Literal Value
   deriving (Eq, Ord)
   -- TODO function
   -- TODO filter
