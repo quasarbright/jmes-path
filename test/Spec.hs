@@ -160,20 +160,24 @@ main = hspec $ do
             pass -- TODO
     describe "truthiness" $ do
         it "works on singles" $ do
-            Null .? toBool `shouldBe` Bool False
-            Array [] .? toBool `shouldBe` Bool False
-            String "" .? toBool `shouldBe` Bool False
-            Object mempty .? toBool `shouldBe` Bool False
-            Bool False .? toBool `shouldBe` Bool False
-            Bool True .? toBool `shouldBe` Bool True
-            Number 0 .? toBool `shouldBe` Bool True
-            Array [Null] .? toBool `shouldBe` Bool True
-            Object ("" .= Null) .? toBool `shouldBe` Bool True
+            Array [Null] .? toBool (index 0) `shouldBe` Bool False
+            Array [Array []] .? toBool (index 0) `shouldBe` Bool False
+            Array [String ""] .? toBool (index 0) `shouldBe` Bool False
+            Array [Object mempty] .? toBool (index 0) `shouldBe` Bool False
+            Array [Bool False] .? toBool (index 0) `shouldBe` Bool False
+            Array [Bool True] .? toBool (index 0) `shouldBe` Bool True
+            Array [Number 0] .? toBool (index 0) `shouldBe` Bool True
+            Array [Array [Null]] .? toBool (index 0) `shouldBe` Bool True
+            Array [Object ("" .= Null)] .? toBool (index 0) `shouldBe` Bool True
         it "is idempotent" $ do
             pass -- TODO property test v .? toBool ?& toBool == v .? toBool
     describe "or" $ do
         it "works on singles" $ do
-            pass -- TODO
+            let e = prop "a" ?|| prop "b"
+                v a b = Object ("a" .= a <> "b" .= b)
+                q a b = v a b .? e
+            Object ("a" .= Number 1 <> "b" .= Number 2) .? (prop "a" ?|| prop "b") `shouldBe` Number 1
+            q Null (Number 1) `shouldBe` Number 1
         it "chains" $ do
             pass -- TODO
         it "associates" $ do
