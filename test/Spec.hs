@@ -176,12 +176,47 @@ main = hspec $ do
             let e = prop "a" ?|| prop "b"
                 v a b = Object ("a" .= a <> "b" .= b)
                 q a b = v a b .? e
-            Object ("a" .= Number 1 <> "b" .= Number 2) .? (prop "a" ?|| prop "b") `shouldBe` Number 1
+            q (Number 1) (Number 2) `shouldBe` Number 1
+            q (Number 1) Null `shouldBe` Number 1
             q Null (Number 1) `shouldBe` Number 1
+            q Null Null `shouldBe` Null
+            q Null (String "") `shouldBe` String ""
+            q (String "") Null `shouldBe` Null
         it "chains" $ do
-            pass -- TODO
+            Array [Array [Number 1], String ""] .? select ?& index 0 ?|| index 1 ?! 0 `shouldBe` Number 1
+            Array [String "",Array [Number 1]] .? select ?& index 0 ?|| index 1 ?! 0 `shouldBe` Number 1
         it "associates" $ do
-            pass -- TODO
+            Array [Number 1, Null, Null] .? select ?& (index 0 ?|| index 1) ?|| index 2 `shouldBe` Number 1
+            Array [Null, Number 1, Null] .? select ?& (index 0 ?|| index 1) ?|| index 2 `shouldBe` Number 1
+            Array [Null, Null, Number 1] .? select ?& (index 0 ?|| index 1) ?|| index 2 `shouldBe` Number 1
+            Array [Number 1, Null, Null] .? select ?& index 0 ?|| (index 1 ?|| index 2) `shouldBe` Number 1
+            Array [Null, Number 1, Null] .? select ?& index 0 ?|| (index 1 ?|| index 2) `shouldBe` Number 1
+            Array [Null, Null, Number 1] .? select ?& index 0 ?|| (index 1 ?|| index 2) `shouldBe` Number 1
+            Array [Number 1, Number 2, Null] .? select ?& (index 0 ?|| index 1) ?|| index 2 `shouldBe` Number 1
+            Array [Null, Number 1, Number 2] .? select ?& (index 0 ?|| index 1) ?|| index 2 `shouldBe` Number 1
+            Array [Number 1, Null, Number 2] .? select ?& (index 0 ?|| index 1) ?|| index 2 `shouldBe` Number 1
+            Array [Number 1, Number 2, Null] .? select ?& index 0 ?|| (index 1 ?|| index 2) `shouldBe` Number 1
+            Array [Null, Number 1, Number 2] .? select ?& index 0 ?|| (index 1 ?|| index 2) `shouldBe` Number 1
+            Array [Number 1, Number 2, Null] .? select ?& index 0 ?|| (index 1 ?|| index 2) `shouldBe` Number 1
+    describe "and" $ do
+        it "works on singles" $ do
+            let e = prop "a" ?&& prop "b"
+                v a b = Object ("a" .= a <> "b" .= b)
+                q a b = v a b .? e
+            q (Number 1) (Number 2) `shouldBe` Number 2
+            q Null (Number 1) `shouldBe` Null
+            q (Number 1) Null `shouldBe` Null
+            q Null Null `shouldBe` Null
+            q (String "") (Number 1) `shouldBe` String ""
+        it "chains" $ do
+            Array [Array [Number 1], Array [Number 2]] .? select ?& index 0 ?&& index 1 ?! 0 `shouldBe` Number 2
+            Array [Array [Number 2], Array [Number 1]] .? select ?& index 0 ?&& index 1 ?! 0 `shouldBe` Number 1
+        it "associates" $ do
+            Array [Null, Number 1, Number 2] .? select ?& (index 0 ?&& index 1) ?&& index 2 `shouldBe` Null
+            Array [Number 0, Number 1, Number 2] .? select ?& (index 0 ?&& index 1) ?&& index 2 `shouldBe` Number 2
+            Array [Number 0, Number 1, Number 2] .? select ?& index 0 ?&& (index 1 ?&& index 2) `shouldBe` Number 2
+            Array [Number 0, Number 1, Null] .? select ?& index 0 ?&& (index 1 ?&& index 2) `shouldBe` Null
+            Array [Number 0, Number 1, Null] .? select ?& (index 0 ?&& index 1) ?&& index 2 `shouldBe` Null
     describe "pipes" $ do
         it "stops projections" $ do
             let v = Array [Object ("a" .= Array [Number 1, Number 2]), Object ("a" .= Array [Number 3, Number 4])]
