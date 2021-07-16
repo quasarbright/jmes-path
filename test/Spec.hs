@@ -166,7 +166,7 @@ main = hspec $ do
             Array [Object mempty] .? toBool (index 0) `shouldBe` Bool False
             Array [Bool False] .? toBool (index 0) `shouldBe` Bool False
             Array [Bool True] .? toBool (index 0) `shouldBe` Bool True
-            Array [Number 0] .? toBool (index 0) `shouldBe` Bool True
+            Array [Number 0] .? toBool (index 0) `shouldBe` Bool True -- I know it's weird, but the spec says 0 is truthy
             Array [Array [Null]] .? toBool (index 0) `shouldBe` Bool True
             Array [Object ("" .= Null)] .? toBool (index 0) `shouldBe` Bool True
         it "is idempotent" $ do
@@ -219,12 +219,45 @@ main = hspec $ do
             Array [Number 0, Number 1, Null] .? select ?& (index 0 ?&& index 1) ?&& index 2 `shouldBe` Null
     describe "filter" $ do
         it "works on singles" $ do
-            Array [Array [Number 0], Array [Number 1, Number 2]] .? jfilter (index 0)
+            Array [Array [Bool False], Array [Number 1, Number 2], Array [Null]] .? jfilter (index 0) `shouldBe` Array [Array [Number 1, Number 2]]
+        it "works with fails" $ do
+            Array [Array [Bool False], Object ("a" .= Number 1), Array [Number 2]] .? jfilter (index 0) `shouldBe` Array [Array [Number 2]]
         it "projects" $ do
-            pass
-        it "handles the check failing" $ do
-            pass
-        -- TODO test cmp
+            Array [Array [Bool False], Array [Number 1, Number 2], Array [Number 3]] .? select ?& jfilter (index 0) ?& index 0 `shouldBe` Array [Number 1, Number 3]
+    describe "comparison" $ do
+        it "works on singles" $ do
+            Array [Number 1, Number 2] .? index 0 ?== index 1 `shouldBe` Bool False
+            Array [Number 1, Number 1] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Number 1, Number 2] .? index 0 ?> index 1 `shouldBe` Bool False
+            Array [Number 1, Number 2] .? index 0 ?< index 1 `shouldBe` Bool True
+            Array [Bool True, Number 1] .? index 0 ?== index 1 `shouldBe` Bool False
+            Array [Bool True, Bool True] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Bool True, Bool False] .? index 0 ?== index 1 `shouldBe` Bool False
+            Array [Null, Null] .? index 0 ?== index 1 `shouldBe` Bool True
+        it "compares array equality" $ do
+            Array [Array [], Array []] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Array [], Array [Bool True]] .? index 0 ?== index 1 `shouldBe` Bool False
+            Array [Array [Bool True], Array []] .? index 0 ?== index 1 `shouldBe` Bool False
+            Array [Array [Bool True], Array [Bool True, Bool False]] .? index 0 ?== index 1 `shouldBe` Bool False -- prefix
+            Array [Array [Bool True], Array [Bool True]] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Array [Bool True], Array [Bool False]] .? index 0 ?== index 1 `shouldBe` Bool False
+            Array [Array [Null, Bool True], Array [Null, Bool True]] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Array [Null, Bool False], Array [Null, Bool True]] .? index 0 ?== index 1 `shouldBe` Bool False
+        it "compares object equality" $ do
+            Array [Object mempty, Object mempty] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Object ("a" .= Null), Object ("a" .= Null)] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Object ("a" .= Bool True), Object ("a" .= Bool True)] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Object ("a" .= Bool True), Object ("a" .= Bool False)] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Object ("a" .= Bool True <> "b" .= Bool False), Object ("a" .= Bool True <> "b" .= Bool False)] .? index 0 ?== index 1 `shouldBe` Bool True
+            Array [Object ("a" .= Bool True <> "b" .= Bool False), Object ("b" .= Bool False  <> "a" .= Bool True)] .? index 0 ?== index 1 `shouldBe` Bool True -- different order
+            Array [Object ("a" .= Bool True <> "b" .= Bool False), Object ("a" .= Bool True <> "b" .= Null)] .? index 0 ?== index 1 `shouldBe` Bool False -- different b
+            Array [Object ("a" .= Bool True <> "b" .= Bool False), Object ("a" .= Bool True)] .? index 0 ?== index 1 `shouldBe` Bool False -- sub-object
+        it "nulls on non-numeric comparison" $ do
+            Array [Bool True, Bool False] .? index 0 ?> index 1 `shouldBe` Null
+            Array [String "a", String "b"] .? index 0 ?< index 1 `shouldBe` Null
+            Array [Array [], Array []] .? index 0 ?< index 1 `shouldBe` Null
+            Array [Object mempty, Object mempty] .? index 0 ?< index 1 `shouldBe` Null
+            Array [Null, Null] .? index 0 ?< index 1 `shouldBe` Null
     describe "pipes" $ do
         it "stops projections" $ do
             let v = Array [Object ("a" .= Array [Number 1, Number 2]), Object ("a" .= Array [Number 3, Number 4])]
