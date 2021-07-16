@@ -37,6 +37,14 @@ module Data.JMESPath
     (?&&),
     jnot,
     toBool,
+    jfilter,
+    (??),
+    (?==),
+    (?/=),
+    (?>),
+    (?>=),
+    (?<),
+    (?<=),
     select,
   )
 where
@@ -47,7 +55,7 @@ import Data.Foldable ()
 import qualified Data.HashMap.Strict as Map
 import Data.Text (Text)
 import Data.JMESPath.Internal
-    ( Selector(..), Slice(..), IsExpr(..), Expr(Pipe) )
+    ( Selector(..), Slice(..), IsExpr(..), Expr(Pipe), Comparator (..) )
 import Data.JMESPath.Core ( eval )
 
 -- TODO haddoc repls
@@ -67,7 +75,7 @@ l |> r = Pipe (toExpr l) (toExpr r)
 
 -- combinators for building `Selector` lists
 
-infixl 6 ?., ?.., ?!, ?!:, ?&, ?.*
+infixl 6 ?., ?.., ?!, ?!:, ?&, ?.*, ??
 
 -- | Field selector
 (?.) :: [Selector] -> Text -> [Selector]
@@ -162,6 +170,35 @@ jnot = Not . toExpr
 -- | Return the truthiness of the expression (equivalent to !!e)
 toBool :: IsExpr e => e -> Selector
 toBool e = Not (toExpr (Not (toExpr e)))
+
+jfilter :: IsExpr e => e -> Selector
+jfilter = Filter . toExpr
+
+(??) :: IsExpr e => e -> Selector
+(??) = jfilter
+
+liftCmp :: IsExpr e => Comparator -> e -> e -> Selector
+liftCmp c l r = Comparison (toExpr l) c (toExpr r)
+
+infixr 9 ?==, ?/=, ?>, ?>=, ?<, ?<=
+
+(?==) :: IsExpr e => e -> e -> Selector
+(?==) = liftCmp Eq
+
+(?/=) :: IsExpr e => e -> e -> Selector
+(?/=) = liftCmp Neq
+
+(?>) :: IsExpr e => e -> e -> Selector
+(?>) = liftCmp Gt
+
+(?>=) :: IsExpr e => e -> e -> Selector
+(?>=) = liftCmp Ge
+
+(?<) :: IsExpr e => e -> e -> Selector
+(?<) = liftCmp Lt
+
+(?<=) :: IsExpr e => e -> e -> Selector
+(?<=) = liftCmp Le
 
 -- | base case for selection list (performs no transformation). Useful for combinator expressions
 select :: [Selector]

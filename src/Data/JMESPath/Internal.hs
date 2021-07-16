@@ -22,6 +22,8 @@ runSlice (MkSlice start stop _) v = Vector.slice start' len v
     len = stop' - start'
     -- step' = fromMaybe 1 step
 
+data Comparator = Eq | Neq | Gt | Ge | Lt | Le deriving(Eq, Ord)
+
 -- | Represents query selectors. Field accesses, indexing, etc. Also used for projections
 data Selector
   = -- | x
@@ -46,9 +48,12 @@ data Selector
     And Expr Expr
   | -- | !a
     Not Expr
+  | -- | [?a == b]
+    Filter Expr
+  | -- a == b
+    Comparison Expr Comparator Expr
   deriving (Eq, Ord)
   -- TODO function
-  -- TODO filter
 
 -- | Represents a full JMESPath expression/query. Use `Semigroup` instance or combinators for piping
 data Expr

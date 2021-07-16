@@ -217,6 +217,14 @@ main = hspec $ do
             Array [Number 0, Number 1, Number 2] .? select ?& index 0 ?&& (index 1 ?&& index 2) `shouldBe` Number 2
             Array [Number 0, Number 1, Null] .? select ?& index 0 ?&& (index 1 ?&& index 2) `shouldBe` Null
             Array [Number 0, Number 1, Null] .? select ?& (index 0 ?&& index 1) ?&& index 2 `shouldBe` Null
+    describe "filter" $ do
+        it "works on singles" $ do
+            Array [Array [Number 0], Array [Number 1, Number 2]] .? jfilter (index 0)
+        it "projects" $ do
+            pass
+        it "handles the check failing" $ do
+            pass
+        -- TODO test cmp
     describe "pipes" $ do
         it "stops projections" $ do
             let v = Array [Object ("a" .= Array [Number 1, Number 2]), Object ("a" .= Array [Number 3, Number 4])]

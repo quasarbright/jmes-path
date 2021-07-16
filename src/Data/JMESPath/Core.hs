@@ -2,14 +2,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Data.JMESPath.Core where
 
-import Data.Aeson ( Array, Object, Value(Null, Array, Object, String, Bool) )
-import Data.JMESPath.Internal ( Expr(..), Selector(..), runSlice )
+import Data.Aeson ( Array, Object, Value(Null, Array, Object, String, Bool, Number) )
+import Data.JMESPath.Internal
+    ( Expr(..),
+      Selector(..),
+      runSlice,
+      Comparator(Le, Eq, Neq, Gt, Ge, Lt) )
 import qualified Data.Vector as Vector
 import qualified Data.HashMap.Strict as Map
 import Control.Arrow ((>>>), Arrow (second))
 import Data.Maybe (fromMaybe)
 import Data.Function ((&))
 import Control.Monad (join)
+import Data.Scientific (Scientific())
 
 -- | Helper for matching on an object
 onObject :: Value -> (Object -> a) -> Maybe a
@@ -28,6 +33,11 @@ onArray _ _ = Nothing
 -- | Helper for matching on an array with a function that outputs a maybe
 onArray' :: Value -> (Array -> Maybe a) -> Maybe a
 onArray' f v = join (onArray f v)
+
+-- | Helper for matching on a number with a function that outputs a maybe
+onNumber :: Value -> (Scientific -> a) -> Maybe a
+onNumber (Number n) f = Just (f n)
+onNumber _ _ = Nothing
 
 -- | Helper for flattening items. Injects non-arrays as singletons and leaves arrays untouched
 toArray :: Value -> Array
@@ -84,6 +94,23 @@ selects (selector : selectors) v =
             then l'
             else r'
         Not e -> go $! Bool (not (truthy (eval v e)))
+        Filter e -> fromMaybe Null $ v `onArray` \vector -> goProj $! Vector.filter p vector
+          where p ele = truthy (eval ele e)
+        Comparison l Eq r -> go $! Bool (l == r)
+        Comparison l Neq r -> go $! Bool (l /= r)
+        Comparison l cmp r ->
+          let cmpFn :: (Scientific -> Scientific -> Bool)
+              cmpFn = case cmp of
+                  Eq -> (==)
+                  Neq -> (/=)
+                  Gt -> (>)
+                  Ge -> (>=)
+                  Lt -> (<)
+                  Le -> (<=)
+          in fromMaybe Null $ do
+            l' <- eval v l `onNumber` id
+            r' <- eval v r `onNumber` id
+            pure (Bool (l' `cmpFn` r'))
 
 -- Maybe you could make lenses/traversals for these! could use function composition with (.)!!
 -- Selector composition isn't context-free, but Exprs could certainly be a lens/traversal

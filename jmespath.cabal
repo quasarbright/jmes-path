@@ -1,8 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: cffbff78d3a47825e45301dc916ba84ff7f3b26ce59fff7cade23013b0114b60
 
 name:           jmespath
 version:        0.1.0.0
@@ -33,13 +35,7 @@ library
       Paths_jmespath
   hs-source-dirs:
       src
-  default-extensions:
-      LambdaCase
-      RecordWildCards
-      GeneralizedNewtypeDeriving
-      TupleSections
-      MonadComprehensions
-      MultiWayIf
+  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
   ghc-options: -w -Wall
   build-depends:
       aeson
@@ -49,6 +45,7 @@ library
     , lens
     , megaparsec
     , mtl
+    , scientific
     , text
     , transformers
     , unordered-containers
@@ -61,13 +58,7 @@ executable jmespath-exe
       Paths_jmespath
   hs-source-dirs:
       app
-  default-extensions:
-      LambdaCase
-      RecordWildCards
-      GeneralizedNewtypeDeriving
-      TupleSections
-      MonadComprehensions
-      MultiWayIf
+  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
   ghc-options: -w -Wall -threaded -rtsopts -with-rtsopts=-N -w -Wall
   build-depends:
       aeson
@@ -78,6 +69,7 @@ executable jmespath-exe
     , lens
     , megaparsec
     , mtl
+    , scientific
     , text
     , transformers
     , unordered-containers
@@ -91,13 +83,7 @@ test-suite jmespath-test
       Paths_jmespath
   hs-source-dirs:
       test
-  default-extensions:
-      LambdaCase
-      RecordWildCards
-      GeneralizedNewtypeDeriving
-      TupleSections
-      MonadComprehensions
-      MultiWayIf
+  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
   ghc-options: -w -Wall -threaded -rtsopts -with-rtsopts=-N -w -Wall
   build-depends:
       HUnit
@@ -111,6 +97,7 @@ test-suite jmespath-test
     , lens
     , megaparsec
     , mtl
+    , scientific
     , text
     , transformers
     , unordered-containers
